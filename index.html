@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>百度地图</title>
+    <!--引用百度地图API-->
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=b4Ig7qdB5ke73fUD8vRiGyslsjiwcvRH"></script>
+</head>
+
+<body>
+    <!--百度地图容器-->
+    <div style="width:100%;height:100vh;border:#ccc solid 1px;font-size:12px" id="map"></div>
+</body>
+<script type="text/javascript">
+    //创建和初始化地图函数：
+    function initMap() {
+        createMap(); //创建地图
+        setMapEvent(); //设置地图事件
+        addMapControl(); //向地图添加控件
+        addMapOverlay(); //向地图添加覆盖物
+    }
+
+    function createMap() {
+        map = new BMap.Map("map");
+        map.centerAndZoom(new BMap.Point(119.284214, 26.021802), 13);
+    }
+
+
+    function setMapEvent() {
+        map.enableScrollWheelZoom();
+        map.enableKeyboard();
+        map.enableDragging();
+        map.enableDoubleClickZoom();
+        var mapStyle = {
+            style: "light"
+        };
+        map.setMapStyle(mapStyle);
+    }
+
+    function addClickHandler(target, window) {
+        target.addEventListener("click", function() {
+            target.openInfoWindow(window);
+        });
+    }
+
+    function addMapOverlay() {
+        var markers = [{
+            content: "又玄图书馆",
+            title: "旗山校区图书馆",
+            // color: rgb(2, 2, 2),
+            imageOffset: {
+                width: 0,
+                height: 3
+            },
+            position: {
+                lat: 26.033564,
+                lng: 119.218154
+            }
+        }, {
+            content: "",
+            title: "仓山校区图书馆",
+
+            imageOffset: {
+                width: 0,
+                height: 3
+            },
+            position: {
+                lat: 26.041512,
+                lng: 119.315758
+            }
+        }];
+        for (var index = 0; index < markers.length; index++) {
+            var point = new BMap.Point(markers[index].position.lng, markers[index].position.lat);
+            var marker = new BMap.Marker(point, {
+                icon: new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png", new BMap.Size(30, 38), {
+                    imageSize: new BMap.Size(200, 100), // 引用图片实际大小
+                    imageOffset: new BMap.Size(-65, -30) // 图片相对视窗的偏移
+                })
+            });
+            var label = new BMap.Label(markers[index].title, {
+                offset: new BMap.Size(25, 5)
+            });
+            label.setStyle({
+                color: "black",
+                border: "10px",
+                backgroundColor: "rgb(	255 ,130 ,71,0.85)", //通过这个方法，去掉背景色
+                fontSize: "22px",
+                height: "45px",
+                width: "180px",
+                textAlign: "center",
+                borderRadius: "1em",
+                fontWeight: "bold",
+                lineHeight: "50px",
+                fontFamily: "cursive"
+            });
+            var opts = {
+                width: 200,
+                title: markers[index].title,
+                enableMessage: false
+            };
+            var infoWindow = new BMap.InfoWindow(markers[index].content, opts);
+            marker.setLabel(label);
+            addClickHandler(marker, infoWindow);
+            map.addOverlay(marker);
+        };
+    }
+    //向地图添加控件
+    function addMapControl() {
+        var scaleControl = new BMap.ScaleControl({
+            anchor: BMAP_ANCHOR_BOTTOM_LEFT
+        });
+        scaleControl.setUnit(BMAP_UNIT_IMPERIAL);
+        map.addControl(scaleControl);
+        var navControl = new BMap.NavigationControl({
+            anchor: BMAP_ANCHOR_TOP_LEFT,
+            type: BMAP_NAVIGATION_CONTROL_LARGE
+        });
+        map.addControl(navControl);
+        var overviewControl = new BMap.OverviewMapControl({
+            anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+            isOpen: true
+        });
+        map.addControl(overviewControl);
+    }
+    var map;
+    initMap();
+</script>
+
+</html>
