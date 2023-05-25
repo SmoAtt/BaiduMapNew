@@ -1,130 +1,68 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>百度地图</title>
-    <!--引用百度地图API-->
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=b4Ig7qdB5ke73fUD8vRiGyslsjiwcvRH"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="https://api.map.baidu.com/api?type=webgl&v=1.0&ak=b4Ig7qdB5ke73fUD8vRiGyslsjiwcvRH"></script>
+    <title>新生入学步行导航</title>
+    <style type="text/css">
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            font-family: "微软雅黑";
+        }
+        
+        #l-map {
+            height: 400px;
+            width: 100%;
+        }
+        
+        #r-result,
+        #r-result table {
+            width: 100%;
+        }
+    </style>
 </head>
 
 <body>
-    <!--百度地图容器-->
-    <div style="width:100%;height:100vh;border:#ccc solid 1px;font-size:12px" id="map"></div>
+    <div id="l-map"></div>
+    <div id="r-result"></div>
 </body>
-<script type="text/javascript">
-    //创建和初始化地图函数：
-    function initMap() {
-        createMap(); //创建地图
-        setMapEvent(); //设置地图事件
-        addMapControl(); //向地图添加控件
-        addMapOverlay(); //向地图添加覆盖物
-    }
-
-    function createMap() {
-        map = new BMap.Map("map");
-        map.centerAndZoom(new BMap.Point(119.284214, 26.021802), 12);
-    }
-
-
-    function setMapEvent() {
-        map.enableScrollWheelZoom();
-        map.enableKeyboard();
-        map.enableDragging();
-        map.enableDoubleClickZoom();
-        var mapStyle = {
-            style: "light"
-        };
-        map.setMapStyle(mapStyle);
-    }
-
-    function addClickHandler(target, window) {
-        target.addEventListener("click", function() {
-            target.openInfoWindow(window);
-        });
-    }
-
-    function addMapOverlay() {
-        var markers = [{
-            content: "又玄图书馆",
-            title: "旗山校区图书馆",
-            // color: rgb(2, 2, 2),
-            imageOffset: {
-                width: 0,
-                height: 3
-            },
-            position: {
-                lat: 26.033564,
-                lng: 119.218154
-            }
-        }, {
-            content: "",
-            title: "仓山校区图书馆",
-
-            imageOffset: {
-                width: 0,
-                height: 3
-            },
-            position: {
-                lat: 26.041512,
-                lng: 119.315758
-            }
-        }];
-        for (var index = 0; index < markers.length; index++) {
-            var point = new BMap.Point(markers[index].position.lng, markers[index].position.lat);
-            var marker = new BMap.Marker(point, {
-                icon: new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png", new BMap.Size(30, 38), {
-                    imageSize: new BMap.Size(200, 100), // 引用图片实际大小
-                    imageOffset: new BMap.Size(-65, -30) // 图片相对视窗的偏移
-                })
-            });
-            var label = new BMap.Label(markers[index].title, {
-                offset: new BMap.Size(25, 5)
-            });
-            label.setStyle({
-                color: "black",
-                border: "10px",
-                backgroundColor: "rgb(	255 ,130 ,71,0.85)", //通过这个方法，去掉背景色
-                fontSize: "22px",
-                height: "45px",
-                width: "180px",
-                textAlign: "center",
-                borderRadius: "1em",
-                fontWeight: "bold",
-                lineHeight: "50px",
-                fontFamily: "cursive"
-            });
-            var opts = {
-                width: 200,
-                title: markers[index].title,
-                enableMessage: false
-            };
-            var infoWindow = new BMap.InfoWindow(markers[index].content, opts);
-            marker.setLabel(label);
-            addClickHandler(marker, infoWindow);
-            map.addOverlay(marker);
-        };
-    }
-    //向地图添加控件
-    function addMapControl() {
-        var scaleControl = new BMap.ScaleControl({
-            anchor: BMAP_ANCHOR_BOTTOM_LEFT
-        });
-        scaleControl.setUnit(BMAP_UNIT_IMPERIAL);
-        map.addControl(scaleControl);
-        var navControl = new BMap.NavigationControl({
-            anchor: BMAP_ANCHOR_TOP_LEFT,
-            type: BMAP_NAVIGATION_CONTROL_LARGE
-        });
-        map.addControl(navControl);
-        var overviewControl = new BMap.OverviewMapControl({
-            anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
-            isOpen: true
-        });
-        map.addControl(overviewControl);
-    }
-    var map;
-    initMap();
-</script>
 
 </html>
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMapGL.Map("l-map");
+    map.centerAndZoom(new BMapGL.Point(119.21246628023735, 26.03830659617496), 11);
+    var walking = new BMapGL.WalkingRoute(map, {
+        renderOptions: {
+            map: map,
+            panel: "r-result",
+            autoViewport: true
+        }
+    });
+
+    // 获取当前位置信息
+    var geolocation = new BMapGL.Geolocation();
+    geolocation.getCurrentPosition(function(r) {
+        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+            var lng = r.point.lng;
+            var lat = r.point.lat;
+            // // 创建一个Marker标注在当前位置
+            // var marker = new BMapGL.Marker(r.point);
+            // map.addOverlay(marker);
+            // // 将地图中心点移动到当前位置
+            // map.centerAndZoom(new BMapGL.Point(lng, lat), 15);
+            // 发起步行导航查询
+            walking.search(new BMapGL.Point(lng, lat), "福建师范大学旗山校区共青团广场");
+        } else {
+            alert('无法获取当前位置');
+        }
+    }, {
+        enableHighAccuracy: true
+    });
+</script>
